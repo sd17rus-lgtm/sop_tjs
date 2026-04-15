@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Определение категории семьи</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 16px;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c7da0, #1f5068);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .block {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .block-title {
+            background: #e9ecef;
+            padding: 12px 16px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .block-title span {
+            background: #6c757d;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+        }
+
+        .question-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .question-item label {
+            flex: 1;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #212529;
+        }
+
+        .question-item input {
+            width: 22px;
+            height: 22px;
+            margin-top: 2px;
+            flex-shrink: 0;
+            accent-color: #2c7da0;
+        }
+
+        .calculate-btn {
+            background: #2c7da0;
+            color: white;
+            border: none;
+            padding: 16px;
+            width: 100%;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 16px 0;
+            transition: background 0.2s;
+        }
+
+        .calculate-btn:active {
+            background: #1f5068;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 6px solid #2c7da0;
+        }
+
+        .result-card h3 {
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+
+        .result-category {
+            font-size: 1.3rem;
+            font-weight: bold;
+            padding: 12px;
+            border-radius: 12px;
+            margin: 12px 0;
+            text-align: center;
+        }
+
+        .result-category.sop { background: #f8d7da; color: #721c24; }
+        .result-category.tjs { background: #fff3cd; color: #856404; }
+        .result-category.support { background: #d1ecf1; color: #0c5460; }
+        .result-category.ok { background: #d4edda; color: #155724; }
+
+        .result-recommendations {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 12px;
+            font-size: 0.85rem;
+        }
+
+        .send-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .send-section input, .send-section textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ced4da;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .send-section textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .send-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+
+        .send-btn:active {
+            background: #218838;
+        }
+
+        .send-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .reset-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 40px;
+            margin-top: 12px;
+            cursor: pointer;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #6c757d;
+            margin-top: 20px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        .toast.error {
+            background: #dc3545;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Категория семьи</h1>
+            <p>Чек-лист для специалиста с отправкой в Telegram</p>
+        </div>
+
+        <div id="app"></div>
+
+        <button class="calculate-btn" id="calculateBtn">📊 Определить категорию</button>
+        
+        <div id="resultContainer"></div>
+        
+        <div class="footer">
+            Межведомственный инструмент | СОП / ТЖС / Нуждающиеся в поддержке
+        </div>
+    </div>
+
+    <script>
+        // ==================== ДАННЫЕ ОПРОСНИКА ====================
+        const blocks = [
+            {
+                title: "Блок А. Поведение родителей (маркеры СОП)",
+                code: "A",
+                questions: [
+                    "Родитель (один или оба) злоупотребляет алкоголем",
+                    "Родитель употребляет наркотические или токсические вещества",
+                    "Родитель ведет асоциальный образ жизни (не работает, бродяжничает)",
+                    "Родитель оставляет детей без присмотра на длительное время (более суток)",
+                    "Родитель не обеспечивает посещение ребенком школы/сада без уважительной причины",
+                    "Родитель не выполняет медицинские предписания в отношении ребенка",
+                    "Родитель проявляет жестокость или агрессию по отношению к детям",
+                    "Родитель состоит на учете в наркологическом диспансере, КДН, ПДН"
+                ]
+            },
+            {
+                title: "Блок Б. Жилищно-бытовые условия",
+                code: "B",
+                questions: [
+                    "Отсутствие у ребенка спального места, постельных принадлежностей",
+                    "Антисанитарное состояние жилья (грязь, мусор, насекомые, грызуны)",
+                    "Отсутствие отопления, горячей воды, света (не по вине ресурсников)",
+                    "Жилье находится в аварийном состоянии, не соответствует санитарным нормам",
+                    "Доступ к опасным предметам (лекарства, химикаты, оголенные провода) без присмотра",
+                    "Жилье не приватизировано, нет регистрации, есть риск утраты"
+                ]
+            },
+            {
+                title: "Блок В. Состояние здоровья и развития детей",
+                code: "C",
+                questions: [
+                    "У ребенка имеются признаки истощения, недоедания, недостаточного веса",
+                    "Ребенок имеет запущенное состояние здоровья (нелеченые заболевания, педикулез)",
+                    "Ребенок имеет признаки физического или психологического насилия",
+                    "Ребенок не имеет документов (свидетельство о рождении, полис, СНИЛС)",
+                    "Ребенок систематически пропускает школу без уважительных причин",
+                    "Ребенок совершал правонарушения, состоит на учете в ПДН",
+                    "Ребенок находится в социально-опасном положении по заключению образовательной организации"
+                ]
+            },
+            {
+                title: "Блок Г. Материально-экономическое положение",
+                code: "D",
+                questions: [
+                    "Доход на члена семьи ниже прожиточного минимума",
+                    "Родители трудоспособного возраста не работают без объективных причин",
+                    "Семья не получает положенные льготы и пособия",
+                    "Имеется задолженность по коммунальным платежам с риском отключения",
+                    "Отсутствие продуктов питания в достаточном количестве"
+                ]
+            },
+            {
+                title: "Блок Д. Объективные трудные обстоятельства (маркеры ТЖС)",
+                code: "E",
+                questions: [
+                    "В семье есть ребенок-инвалид или взрослый инвалид, требующий ухода",
+                    "Один из членов семьи имеет тяжелое хроническое заболевание",
+                    "Семья потеряла кормильца (смерть, лишение свободы)",
+                    "Семья пострадала от чрезвычайной ситуации (пожар, наводнение)",
+                    "Семья является вынужденными переселенцами или беженцами",
+                    "Родитель (один или оба) находятся в местах лишения свободы, на длительном лечении"
+                ]
+            },
+            {
+                title: "Блок Е. Факторы риска (нуждающиеся в поддержке)",
+                code: "F",
+                questions: [
+                    "Семья многодетная (3 и более несовершеннолетних детей)",
+                    "Семья неполная (один родитель)",
+                    "Родители — несовершеннолетние (до 18 лет)",
+                    "В семье есть ребенок с ОВЗ (легкая форма) без установленной инвалидности",
+                    "Доход чуть выше прожиточного минимума, но отсутствует жилье или есть иные обязательства",
+                    "Родитель временно не работает (потеря работы, находится в поиске)",
+                    "Семья не имеет собственного жилья, проживает в съемном или у родственников",
+                    "Родитель находится в отпуске по уходу за ребенком, пособие — единственный доход",
+                    "В семье недавно произошел развод или смерть близкого родственника"
+                ]
+            }
+        ];
+
+        let answers = {};
+        let currentResult = null;
+
+        function renderForm() {
+            const app = document.getElementById('app');
+            app.innerHTML = '';
+            
+            blocks.forEach((block) => {
+                const blockDiv = document.createElement('div');
+                blockDiv.className = 'block';
+                
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'block-title';
+                titleDiv.innerHTML = `${block.title} <span>${block.code}</span>`;
+                blockDiv.appendChild(titleDiv);
+                
+                block.questions.forEach((question, qIdx) => {
+                    const questionId = `${block.code}_${qIdx}`;
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'question-item';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = questionId;
+                    if (answers[questionId]) checkbox.checked = true;
+                    checkbox.addEventListener('change', (e) => {
+                        answers[questionId] = e.target.checked;
+                    });
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = questionId;
+                    label.textContent = question;
+                    
+                    itemDiv.appendChild(checkbox);
+                    itemDiv.appendChild(label);
+                    blockDiv.appendChild(itemDiv);
+                });
+                
+                app.appendChild(blockDiv);
+            });
+        }
+
+        function countTrueInBlock(blockCode) {
+            let count = 0;
+            const block = blocks.find(b => b.code === blockCode);
+            if (!block) return 0;
+            
+            for (let i = 0; i < block.questions.length; i++) {
+                const questionId = `${blockCode}_${i}`;
+                if (answers[questionId]) count++;
+            }
+            return count;
+        }
+
+        function getAnswersStats() {
+            return {
+                A: countTrueInBlock('A'),
+                B: countTrueInBlock('B'),
+                C: countTrueInBlock('C'),
+                D: countTrueInBlock('D'),
+                E: countTrueInBlock('E'),
+                F: countTrueInBlock('F')
+            };
+        }
+
+        function determineCategory() {
+            const aCount = countTrueInBlock('A');
+            const bCount = countTrueInBlock('B');
+            const cCount = countTrueInBlock('C');
+            const dCount = countTrueInBlock('D');
+            const eCount = countTrueInBlock('E');
+            const fCount = countTrueInBlock('F');
+            
+            if (aCount >= 1) {
+                return {
+                    category: "sop",
+                    title: "Семья в социально опасном положении (СОП)",
+                    description: "Выявлены признаки асоциального поведения родителей, создающие прямую угрозу жизни и здоровью детей.",
+                    recommendations: "Немедленное межведомственное реагирование. Подключение КДН, органов опеки, ПДН. Рассмотреть вопрос о безопасности ребенка."
+                };
+            }
+            
+            const hasObjectivelyHard = eCount >= 1;
+            const hasPovertyAndConditions = (dCount >= 3 && bCount >= 2);
+            
+            if (aCount === 0 && (hasObjectivelyHard || hasPovertyAndConditions)) {
+                return {
+                    category: "tjs",
+                    title: "Семья в трудной жизненной ситуации (ТЖС)",
+                    description: "Объективные обстоятельства нарушают жизнедеятельность семьи, которую она не может преодолеть самостоятельно.",
+                    recommendations: "Социальное сопровождение в КЦСОН. Предоставление социальных услуг, адресная помощь, содействие в получении мер поддержки."
+                };
+            }
+            
+            if (aCount === 0 && eCount === 0 && fCount >= 2) {
+                return {
+                    category: "support",
+                    title: "Семья, нуждающаяся в социальной поддержке",
+                    description: "Имеются факторы риска ухудшения положения, требуется профилактическая помощь.",
+                    recommendations: "Профилактическая работа, консультирование, помощь в оформлении пособий, содействие в трудоустройстве."
+                };
+            }
+            
+            if (aCount === 0 && eCount === 0 && fCount < 2 && dCount < 2) {
+                return {
+                    category: "ok",
+                    title: "Условно благополучная семья",
+                    description: "Признаки социального неблагополучия не выявлены или носят временный характер.",
+                    recommendations: "Мониторинг ситуации при наличии факторов риска. Профилактические консультации по запросу."
+                };
+            }
+            
+            return {
+                category: "support",
+                title: "Требуется дополнительная оценка",
+                description: "Ситуация требует углубленного анализа специалистом.",
+                recommendations: "Провести повторное обследование, запросить дополнительную информацию из образовательных и медицинских организаций."
+            };
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        async function sendResultToTelegram(chatId, specialistName, comment) {
+            if (!currentResult) {
+                showToast('Сначала определите категорию семьи', true);
+                return false;
+            }
+            
+            const stats = getAnswersStats();
+            
+            try {
+                const response = await fetch('/api/send-result', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        chatId: chatId,
+                        result: currentResult,
+                        answers: stats,
+                        specialistName: specialistName,
+                        comment: comment
+                    })
+                });
+                
+                if (response.ok) {
+                    showToast('✅ Результат успешно отправлен в Telegram');
+                    return true;
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (error) {
+                console.error('Send error:', error);
+                showToast('❌ Ошибка отправки. Проверьте подключение к интернету', true);
+                return false;
+            }
+        }
+
+        function showResult() {
+            currentResult = determineCategory();
+            const stats = getAnswersStats();
+            const container = document.getElementById('resultContainer');
+            
+            let categoryClass = '';
+            switch (currentResult.category) {
+                case 'sop': categoryClass = 'sop'; break;
+                case 'tjs': categoryClass = 'tjs'; break;
+                case 'support': categoryClass = 'support'; break;
+                default: categoryClass = 'ok';
+            }
+            
+            // Получаем информацию о пользователе Telegram
+            let tgUser = null;
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+            }
+            
+            container.innerHTML = `
+                <div class="result-card">
+                    <h3>📋 Результат оценки</h3>
+                    <div class="result-category ${categoryClass}">
+                        ${currentResult.title}
+                    </div>
+                    <p style="margin: 12px 0;">${currentResult.description}</p>
+                    <div class="result-recommendations">
+                        <strong>💡 Рекомендации:</strong><br>
+                        ${currentResult.recommendations}
+                    </div>
+                    <div style="font-size:0.8rem; margin-top:8px; color:#6c757d;">
+                        📊 Признаки: А:${stats.A} | Б:${stats.B} | В:${stats.C} | Г:${stats.D} | Д:${stats.E} | Е:${stats.F}
+                    </div>
+                    
+                    <div class="send-section">
+                        <strong>📤 Отправить результат в Telegram</strong>
+                        <input type="text" id="chatIdInput" placeholder="ID чата (или оставьте пустым для отправки себе)" value="${tgUser ? tgUser.id : ''}">
+                        <input type="text" id="specialistName" placeholder="Ваше имя (ФИО специалиста)">
+                        <textarea id="commentInput" placeholder="Комментарий (дополнительная информация)"></textarea>
+                        <button class="send-btn" id="sendBtn">📨 Отправить в Telegram</button>
+                    </div>
+                    
+                    <button class="reset-btn" id="resetBtn">🔄 Сбросить все ответы</button>
+                </div>
+            `;
+            
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                answers = {};
+                renderForm();
+                container.innerHTML = '';
+                currentResult = null;
+            });
+            
+            document.getElementById('sendBtn').addEventListener('click', async () => {
+                let chatId = document.getElementById('chatIdInput').value.trim();
+                const specialistName = document.getElementById('specialistName').value.trim();
+                const comment = document.getElementById('commentInput').value.trim();
+                
+                // Если chatId не указан, используем ID пользователя Telegram
+                if (!chatId && tgUser) {
+                    chatId = tgUser.id;
+                }
+                
+                if (!chatId) {
+                    showToast('Укажите ID чата или откройте приложение из Telegram', true);
+                    return;
+                }
+                
+                await sendResultToTelegram(chatId, specialistName, comment);
+            });
+            
+            // Отправка данных в Telegram Web App
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.sendData(JSON.stringify({
+                    category: currentResult.category,
+                    title: currentResult.title,
+                    stats: stats,
+                    timestamp: new Date().toISOString()
+                }));
+            }
+        }
+        
+        function init() {
+            renderForm();
+            document.getElementById('calculateBtn').addEventListener('click', showResult);
+            
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.ready();
+                window.Telegram.WebApp.expand();
+                window.Telegram.WebApp.setHeaderColor('#2c7da0');
+                window.Telegram.WebApp.enableClosingConfirmation();
+            }
+        }
+        
+        init();
+    </script>
+</body>
+</html>
